@@ -1,12 +1,6 @@
+fastapi
+uvicorn
+requests
 pandas
 numpy
-scikit-learn
-streamlit
-joblib
-shap
-matplotlib
-plotly
-fastapi
-pydantic
-uvicorn
 
