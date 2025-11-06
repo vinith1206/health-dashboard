@@ -1,12 +1,6 @@
+# Add your project's Python dependencies below. Replace these with the project's actual dependencies if necessary.
+fastapi
+uvicorn
+requests
 pandas
 numpy
-scikit-learn
-streamlit
-joblib
-shap
-matplotlib
-plotly
-fastapi
-pydantic
-uvicorn
-
