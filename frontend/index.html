@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Health Dashboard – Heart Risk API</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 0; padding: 2rem; background: #f7f9fb; }
+  h1 { background: linear-gradient(135deg,#667eea,#764ba2); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .card { background: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); max-width: 780px; margin-bottom: 1.5rem; }
+    label { display: block; margin-top: .75rem; font-size: .85rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    input { width: 100%; padding: .55rem .65rem; border: 1px solid #ccd; border-radius: 6px; font-size: .95rem; }
+    button { background: #667eea; color: #fff; border: none; padding: .75rem 1.25rem; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 1rem; }
+    button:hover { background: #5466c5; }
+    pre { background:#222; color:#eee; padding:1rem; border-radius:8px; overflow:auto; }
+    footer { margin-top:3rem; font-size:.75rem; opacity:.65; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: .75rem; }
+  </style>
+</head>
+<body>
+  <h1>❤️ Health Dashboard API</h1>
+  <div class="card">
+    <p>Minimal static frontend served by Vercel. Use this to test the FastAPI prediction endpoint. For the full interactive UI, deploy the original Streamlit app separately (Streamlit Cloud or container).</p>
+  </div>
+  <div class="card">
+    <h2>Single Prediction</h2>
+    <form id="predict-form">
+      <div class="grid">
+        <div><label>Age</label><input type="number" step="1" name="age" value="54" /></div>
+        <div><label>Sex (1=male)</label><input type="number" step="1" name="sex" value="1" /></div>
+        <div><label>Rest BP</label><input type="number" step="1" name="trestbps" value="130" /></div>
+        <div><label>Chol</label><input type="number" step="1" name="chol" value="246" /></div>
+        <div><label>FBS (1/0)</label><input type="number" step="1" name="fbs" value="0" /></div>
+        <div><label>Thalach</label><input type="number" step="1" name="thalach" value="150" /></div>
+        <div><label>Exang (1/0)</label><input type="number" step="1" name="exang" value="0" /></div>
+        <div><label>Oldpeak</label><input type="number" step="0.1" name="oldpeak" value="1.0" /></div>
+      </div>
+      <button type="submit">Predict</button>
+    </form>
+    <h3>Response</h3>
+    <pre id="predict-output">(none)</pre>
+  </div>
+
+  <div class="card">
+    <h2>Health & Metrics</h2>
+    <button id="btn-health">Check /health</button>
+    <button id="btn-metrics">Fetch /metrics</button>
+    <pre id="misc-output">(none)</pre>
+  </div>
+
+  <footer>
+    For educational purposes only. Model artifacts must be present in <code>model/</code> for predictions.
+  </footer>
+
+  <script>
+    async function postJSON(url, data){
+      const res = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+      if(!res.ok){throw new Error(await res.text());}
+      return res.json();
+    }
+    document.getElementById('predict-form').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const obj = {}; fd.forEach((v,k)=>{ if(v!=='' ) obj[k]= isNaN(Number(v))? v : Number(v); });
+      try {
+        const json = await postJSON('/api/predict',{instances:[obj]});
+        document.getElementById('predict-output').textContent = JSON.stringify(json,null,2);
+      } catch(err){
+        document.getElementById('predict-output').textContent = 'Error: '+ err.message;
+      }
+    });
+    document.getElementById('btn-health').addEventListener('click', async ()=>{
+      try{ const j = await fetch('/api/health').then(r=>r.json());
+        document.getElementById('misc-output').textContent = 'Health:\n'+JSON.stringify(j,null,2);
+      } catch(err){ document.getElementById('misc-output').textContent = 'Error: '+err.message; }
+    });
+    document.getElementById('btn-metrics').addEventListener('click', async ()=>{
+      try{ const j = await fetch('/api/metrics').then(r=>r.json());
+        document.getElementById('misc-output').textContent = 'Metrics:\n'+JSON.stringify(j,null,2);
+      } catch(err){ document.getElementById('misc-output').textContent = 'Error: '+err.message; }
+    });
+  </script>
+</body>
+</html>

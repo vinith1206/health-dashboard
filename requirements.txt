@@ -6,4 +6,7 @@ joblib
 shap
 matplotlib
 plotly
+fastapi
+pydantic
+uvicorn
 
